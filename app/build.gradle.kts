@@ -17,10 +17,37 @@ android {
         applicationId = "at.resch.routines"
         minSdk = 29
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        // Überschreibbar durch die Release-CI: -PversionCode=42 -PversionName=1.2.3
+        // (siehe .github/workflows/release.yml). Ohne Property gelten die Defaults
+        // für lokale Builds.
+        versionCode = (project.findProperty("versionCode") as String?)?.toIntOrNull() ?: 1
+        versionName = (project.findProperty("versionName") as String?) ?: "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // Release-Signierung über Umgebungsvariablen — die CI legt den Keystore aus
+    // einem Secret ab und setzt KEYSTORE_FILE/-PASSWORD, KEY_ALIAS/-PASSWORD.
+    // Fehlt der Keystore (lokaler Build, Fork ohne Secrets), wird die Config gar
+    // nicht erst angelegt und `assembleRelease` erzeugt ein unsigniertes APK.
+    // `providers.environmentVariable` statt System.getenv: Configuration-Cache-tauglich.
+    // takeIf(isNotBlank) ist wichtig: die CI setzt die Variable auch dann, wenn der
+    // Keystore-Step übersprungen wurde — dann aber leer, und file("") wäre das
+    // Projektverzeichnis. isFile schließt zusätzlich Verzeichnisse aus.
+    val keystore = providers.environmentVariable("KEYSTORE_FILE").orNull
+        ?.takeIf { it.isNotBlank() }
+        ?.let { rootProject.file(it) }
+        ?.takeIf { it.isFile }
+
+    signingConfigs {
+        if (keystore != null) {
+            create("release") {
+                storeFile = keystore
+                storePassword = providers.environmentVariable("KEYSTORE_PASSWORD").orNull
+                keyAlias = providers.environmentVariable("KEY_ALIAS").orNull
+                keyPassword = providers.environmentVariable("KEY_PASSWORD").orNull
+            }
+        }
     }
 
     buildTypes {
@@ -28,6 +55,7 @@ android {
             optimization {
                 enable = false
             }
+            signingConfig = signingConfigs.findByName("release")
         }
     }
     compileOptions {
