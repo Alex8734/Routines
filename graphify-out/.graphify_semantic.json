@@ -1,0 +1,405 @@
+{
+  "nodes": [
+    {
+      "id": "claude_android_automation_project",
+      "label": "Android Automation App",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_multi_agent_architecture",
+      "label": "Multi-Agent Architecture",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 3",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_lead_architect",
+      "label": "Lead Architect",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Manages overall structure and orchestrates local graphify context"
+    },
+    {
+      "id": "claude_system_implementer",
+      "label": "System Implementer",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 6",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Specialized in Android Background Services, BroadcastReceiver, and Kotlin Coroutine Flows. Writes code ONLY in core/"
+    },
+    {
+      "id": "claude_ui_designer",
+      "label": "UI Designer",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 7",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Specialized in Jetpack Compose and MVVM ViewModels. Writes code ONLY in ui/"
+    },
+    {
+      "id": "claude_qa_engineer",
+      "label": "QA Engineer (Test Automator)",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 8",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Specialized in MockK, Turbine, and Compose UI Testing. Writes code ONLY in src/test/ and src/androidTest/"
+    },
+    {
+      "id": "claude_graphify_knowledge_graph",
+      "label": "Graphify Knowledge Graph",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 13",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_kotlin",
+      "label": "Kotlin",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 11",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_jetpack_compose",
+      "label": "Jetpack Compose",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 7",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_layer_separation",
+      "label": "Layer Separation (Presentation, Domain, Data)",
+      "file_type": "rationale",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 12",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_android_background_services",
+      "label": "Android Background Services",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 6",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_broadcast_receiver",
+      "label": "BroadcastReceiver",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 6",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_kotlin_coroutine_flows",
+      "label": "Kotlin Coroutine Flows",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 6",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_mvvm_viewmodels",
+      "label": "MVVM ViewModels",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 7",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_mockk",
+      "label": "MockK",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 8",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_turbine",
+      "label": "Turbine",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 8",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_compose_ui_testing",
+      "label": "Compose UI Testing",
+      "file_type": "concept",
+      "source_file": "CLAUDE.md",
+      "source_location": "line 8",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "claude_android_automation_project",
+      "target": "claude_multi_agent_architecture",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 3",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_multi_agent_architecture",
+      "target": "claude_lead_architect",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 5",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_multi_agent_architecture",
+      "target": "claude_system_implementer",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 6",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_multi_agent_architecture",
+      "target": "claude_ui_designer",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 7",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_multi_agent_architecture",
+      "target": "claude_qa_engineer",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 8",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_lead_architect",
+      "target": "claude_graphify_knowledge_graph",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 13",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_system_implementer",
+      "target": "claude_android_background_services",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 6",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_system_implementer",
+      "target": "claude_broadcast_receiver",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 6",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_system_implementer",
+      "target": "claude_kotlin_coroutine_flows",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 6",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_ui_designer",
+      "target": "claude_jetpack_compose",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 7",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_ui_designer",
+      "target": "claude_mvvm_viewmodels",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 7",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_qa_engineer",
+      "target": "claude_mockk",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 8",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_qa_engineer",
+      "target": "claude_turbine",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 8",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_qa_engineer",
+      "target": "claude_compose_ui_testing",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 8",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_android_automation_project",
+      "target": "claude_kotlin",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 11",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_android_automation_project",
+      "target": "claude_jetpack_compose",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 11",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_android_automation_project",
+      "target": "claude_layer_separation",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 12",
+      "weight": 1.0
+    },
+    {
+      "source": "claude_qa_engineer",
+      "target": "claude_system_implementer",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 14",
+      "weight": 0.85
+    },
+    {
+      "source": "claude_qa_engineer",
+      "target": "claude_ui_designer",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "CLAUDE.md",
+      "source_location": "line 14",
+      "weight": 0.85
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "claude_multi_agent_roles",
+      "label": "Multi-Agent Architecture Roles",
+      "nodes": [
+        "claude_lead_architect",
+        "claude_system_implementer",
+        "claude_ui_designer",
+        "claude_qa_engineer"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CLAUDE.md"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

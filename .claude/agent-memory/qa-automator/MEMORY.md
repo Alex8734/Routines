@@ -1,0 +1,7 @@
+- [Phase 2 Core-Engine Tests](project_phase2_tests.md) — test patterns, Log-stub decision, discovered seams for Phase 2 unit tests
+- [Phase 3 Root/System Actions Tests](project_phase3_tests.md) — 41 new tests, seam patterns (ProcessRunner/RootProbe/IntentLauncher), material-icons bug fixed
+- [Phase 5 MacroEditor ViewModel Tests](project_phase5_editor_tests.md) — 12 editor tests, gate closed at 107 total; patterns for ViewModel + TestDispatcher
+- [Phase 4 Batch 1 Tests](project_phase4_tests.md) — 74 new tests (triggers/actions/SystemEvent/MacroJsonPretty), gate closed at 181 total; dispatcher + idempotency + cancellation patterns
+- [Phase 6 Wait/Reorder Tests](project_phase6_wait_reorder_tests.md) — 35 new tests (WaitActionExecutor/sequential ordering/ViewModel reorder+wait), gate closed at 216 total; currentTime-in-inner-class pitfall
+- [Phase 7 Strategy/CompatibilityContract Tests](project_phase7_strategy_tests.md) — 30 tests (StrategyActionExecutor base + ToggleHotspot strategies), gate closed at 246 total; protected-method + final-class pitfalls
+- [Phase 8 Simple Seam Tests](project_phase8_simple_seam_tests.md) — 28 tests (ToggleDnd/SetVolumeProfile/SetBrightness), gate ~274 total; simple seam pattern, NOT StrategyActionExecutor
