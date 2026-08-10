@@ -22,8 +22,22 @@ interface HttpClient {
     /**
      * Führt einen HTTP-Request aus. Wirft bei Netzwerk-/IO-Fehlern — der Executor
      * übersetzt das in ein [ActionResult.Failure].
+     *
+     * [headers] und [timeoutMillis] haben Default-Werte, damit bestehende
+     * Implementierungen/Aufrufe ohne diese Parameter weiter funktionieren.
      */
-    suspend fun request(url: String, method: String, body: String?): HttpResponse
+    suspend fun request(
+        url: String,
+        method: String,
+        body: String?,
+        headers: Map<String, String> = emptyMap(),
+        timeoutMillis: Int = DEFAULT_TIMEOUT_MS
+    ): HttpResponse
+
+    companion object {
+        /** Default-Timeout (connect + read) in Millisekunden. */
+        const val DEFAULT_TIMEOUT_MS = 15_000
+    }
 }
 
 /**
@@ -31,11 +45,18 @@ interface HttpClient {
  */
 class UrlConnectionHttpClient : HttpClient {
 
-    override suspend fun request(url: String, method: String, body: String?): HttpResponse {
+    override suspend fun request(
+        url: String,
+        method: String,
+        body: String?,
+        headers: Map<String, String>,
+        timeoutMillis: Int
+    ): HttpResponse {
         val connection = (URL(url).openConnection() as HttpURLConnection).apply {
             requestMethod = method.uppercase()
-            connectTimeout = CONNECT_TIMEOUT_MS
-            readTimeout = READ_TIMEOUT_MS
+            connectTimeout = timeoutMillis
+            readTimeout = timeoutMillis
+            headers.forEach { (name, value) -> setRequestProperty(name, value) }
         }
         try {
             if (!body.isNullOrEmpty()) {
@@ -50,20 +71,23 @@ class UrlConnectionHttpClient : HttpClient {
             connection.disconnect()
         }
     }
-
-    companion object {
-        private const val CONNECT_TIMEOUT_MS = 15_000
-        private const val READ_TIMEOUT_MS = 15_000
-    }
 }
 
 /**
  * Executor für `http_request` — feuert einen HTTP-Aufruf ab.
  *
  * Param-Vertrag:
- * - `url`    : String, **erforderlich** — Ziel-URL.
- * - `method` : String, optional (default `"GET"`) — HTTP-Methode.
- * - `body`   : String, optional — Request-Body (z. B. JSON).
+ * - `url`            : String, **erforderlich** — Ziel-URL.
+ * - `method`         : String, optional (default `"GET"`) — HTTP-Methode.
+ * - `body`           : String, optional — Request-Body (z. B. JSON).
+ * - `headers`        : String, optional — Header-Zeilen im Format `Name: Wert`,
+ *   getrennt durch `\n`. Name und Wert werden getrimmt. Leerzeilen und Zeilen
+ *   ohne `:` werden defensiv ignoriert (kein Crash bei Tippfehlern), ebenso
+ *   Zeilen mit leerem Namen. Ein Wert darf `:` enthalten (Split am ersten `:`).
+ *   Beispiel: `"Content-Type: application/json\nAuthorization: Bearer abc"`.
+ * - `timeoutSeconds` : Int, optional (default `15`) — Connect- **und**
+ *   Read-Timeout. Nicht-numerische oder Werte `<= 0` fallen auf den Default
+ *   zurück.
  *
  * 2xx → [ActionResult.Success] mit Response-Body. Nicht-2xx oder Exception →
  * [ActionResult.Failure]. Läuft auf dem injizierten IO-Dispatcher. Wirft nie.
@@ -82,9 +106,13 @@ class HttpRequestActionExecutor(
         }
         val method = action.params["method"]?.takeIf { it.isNotBlank() } ?: "GET"
         val body = action.params["body"]?.takeIf { it.isNotEmpty() }
+        val headers = parseHeaders(action.params["headers"])
+        val timeoutMillis = parseTimeoutMillis(action.params["timeoutSeconds"])
 
         return try {
-            val response = withContext(ioDispatcher) { client.request(url, method, body) }
+            val response = withContext(ioDispatcher) {
+                client.request(url, method, body, headers, timeoutMillis)
+            }
             if (response.statusCode in 200..299) {
                 ActionResult.Success(response.body)
             } else {
@@ -98,7 +126,39 @@ class HttpRequestActionExecutor(
         }
     }
 
+    /**
+     * Parst den `headers`-Param (`Name: Wert` je Zeile) defensiv in eine Map.
+     * Ungültige Zeilen werden still verworfen — ein Tippfehler in der Konfiguration
+     * darf den Request nicht zum Absturz bringen.
+     */
+    private fun parseHeaders(raw: String?): Map<String, String> {
+        if (raw.isNullOrBlank()) return emptyMap()
+        return raw.lineSequence()
+            .mapNotNull { line ->
+                val separator = line.indexOf(':')
+                if (separator <= 0) return@mapNotNull null
+                val name = line.substring(0, separator).trim()
+                val value = line.substring(separator + 1).trim()
+                if (name.isEmpty()) null else name to value
+            }
+            .toMap()
+    }
+
+    /**
+     * Parst `timeoutSeconds` → Millisekunden. Fällt bei fehlendem, nicht-numerischem
+     * oder nicht-positivem Wert auf [HttpClient.DEFAULT_TIMEOUT_MS] zurück.
+     */
+    private fun parseTimeoutMillis(raw: String?): Int {
+        val seconds = raw?.trim()?.toIntOrNull() ?: return HttpClient.DEFAULT_TIMEOUT_MS
+        if (seconds <= 0) return HttpClient.DEFAULT_TIMEOUT_MS
+        // Obergrenze verhindert Int-Overflow bei der Millisekunden-Umrechnung.
+        return seconds.coerceAtMost(MAX_TIMEOUT_SECONDS) * 1000
+    }
+
     companion object {
         private const val TAG = "HttpRequestAction"
+
+        /** Obergrenze für `timeoutSeconds` (10 Minuten). */
+        const val MAX_TIMEOUT_SECONDS = 600
     }
 }

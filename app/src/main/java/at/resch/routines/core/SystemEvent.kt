@@ -68,6 +68,25 @@ sealed interface SystemEvent {
     }
 
     /**
+     * Periodischer Tick der
+     * [at.resch.routines.core.trigger.IntervalTriggerSource]. Matcht genau die
+     * [Trigger.Interval]-Makros, deren [Trigger.Interval.intervalSeconds] exakt
+     * [intervalSeconds] entspricht — die Quelle betreibt pro Intervallwert einen
+     * eigenen Ticker.
+     *
+     * **Wichtig (Klemmung):** [intervalSeconds] ist immer der **Original-Wert aus
+     * dem Makro**, nicht der auf [Trigger.Interval.MIN_INTERVAL_SECONDS]
+     * geklemmte Wartewert. Die Klemmung passiert ausschließlich beim Warten in der
+     * Quelle. Nur so bleibt der Gleichheitsvergleich hier konsistent: ein Makro
+     * mit `intervalSeconds = 1` würde sonst nie matchen, weil der Tick mit `5`
+     * käme.
+     */
+    data class IntervalTick(val intervalSeconds: Int) : SystemEvent {
+        override fun matches(trigger: Trigger): Boolean =
+            trigger is Trigger.Interval && trigger.intervalSeconds == intervalSeconds
+    }
+
+    /**
      * Die aktuell verbundene WLAN-SSID hat sich geändert. [ssid] ist non-null,
      * wenn das Gerät aktuell mit diesem WLAN verbunden ist; `null` bedeutet
      * WLAN getrennt bzw. SSID unbekannt (z. B. fehlende Location-Permission auf

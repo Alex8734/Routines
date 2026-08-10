@@ -139,6 +139,69 @@ class SystemEventMatchesTest {
     }
 
     // -----------------------------------------------------------------------
+    // IntervalTick — matches Trigger Interval with the exact same intervalSeconds
+    // -----------------------------------------------------------------------
+
+    @Test
+    fun `IntervalTick matches Trigger Interval with the same intervalSeconds`() {
+        val event = SystemEvent.IntervalTick(intervalSeconds = 60)
+        val trigger = Trigger.Interval(intervalSeconds = 60)
+        assertTrue(event.matches(trigger))
+    }
+
+    @Test
+    fun `IntervalTick matches Trigger Interval with the same intervalSeconds regardless of runOnStart`() {
+        val event = SystemEvent.IntervalTick(intervalSeconds = 60)
+        val trigger = Trigger.Interval(intervalSeconds = 60, runOnStart = true)
+        assertTrue(event.matches(trigger))
+    }
+
+    @Test
+    fun `IntervalTick does not match Trigger Interval with a different intervalSeconds`() {
+        val event = SystemEvent.IntervalTick(intervalSeconds = 60)
+        val trigger = Trigger.Interval(intervalSeconds = 30)
+        assertFalse(event.matches(trigger))
+    }
+
+    @Test
+    fun `IntervalTick does not match TimeSchedule trigger`() {
+        val event = SystemEvent.IntervalTick(intervalSeconds = 60)
+        assertFalse(event.matches(Trigger.TimeSchedule(intervalMinutes = 1)))
+    }
+
+    @Test
+    fun `IntervalTick does not match OnStartup trigger`() {
+        assertFalse(SystemEvent.IntervalTick(intervalSeconds = 60).matches(Trigger.OnStartup))
+    }
+
+    @Test
+    fun `IntervalTick does not match BatteryLevel trigger`() {
+        assertFalse(SystemEvent.IntervalTick(intervalSeconds = 60).matches(Trigger.BatteryLevel(level = 20)))
+    }
+
+    @Test
+    fun `TimeTick does not match Trigger Interval`() {
+        assertFalse(SystemEvent.TimeTick.matches(Trigger.Interval(intervalSeconds = 60)))
+    }
+
+    @Test
+    fun `TimeSchedule tick source event does not accidentally match an Interval trigger via TimeTick`() {
+        // Defensive cross-check: TimeTick must never match Trigger Interval, even when
+        // the values would coincidentally look related.
+        assertFalse(SystemEvent.TimeTick.matches(Trigger.Interval(intervalSeconds = 15)))
+    }
+
+    @Test
+    fun `Startup does not match Trigger Interval`() {
+        assertFalse(SystemEvent.Startup.matches(Trigger.Interval(intervalSeconds = 60)))
+    }
+
+    @Test
+    fun `BatteryChanged does not match Trigger Interval`() {
+        assertFalse(SystemEvent.BatteryChanged(level = 50).matches(Trigger.Interval(intervalSeconds = 60)))
+    }
+
+    // -----------------------------------------------------------------------
     // Startup event — sanity check
     // -----------------------------------------------------------------------
 

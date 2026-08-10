@@ -9,9 +9,10 @@ Package root: `at.resch.routines`
 
 **Domain model** (`domain/model/MacroScript.kt`):
 - `MacroScript(id, name, enabled, trigger: Trigger, actions: List<Action>)`
-- `sealed class Trigger`: `OnStartup`, `SimCardDataConnected` (param-less data objects), `BatteryLevel(level: Int, mode: String)` (@SerialName "battery_level"), `TimeSchedule(intervalMinutes: Int)` (@SerialName "time_schedule")
-- `Trigger.BatteryLevel` companion: `MODE_BELOW="below"`, `MODE_ABOVE="above"`
+- `sealed class Trigger`: `OnStartup`, `SimCardDataConnected` (param-less data objects); param-carrying data classes: `BatteryLevel(level: Int, mode: String)` (@SerialName "battery_level"), `TimeSchedule(intervalMinutes: Int)` (@SerialName "time_schedule"), `Interval(intervalSeconds: Int, runOnStart: Boolean = false)` (@SerialName "interval", companion `MIN_INTERVAL_SECONDS=5`), `WifiSsid(ssid: String, mode: String)` (@SerialName "wifi_ssid"), `BluetoothDevice(deviceName: String, mode: String)` (@SerialName "bluetooth_device")
+- `Trigger.BatteryLevel`/`WifiSsid`/`BluetoothDevice` companions: mode constants (`MODE_BELOW`/`MODE_ABOVE` or `MODE_CONNECTED`/`MODE_DISCONNECTED`)
 - `Action(type: String, params: Map<String,String>)`
+- Whenever a new param-carrying `Trigger` subtype is added to the domain model, two **exhaustive `when(trigger)`** blocks in `ui/` must get a new branch or the build breaks: `TriggerParamFields` in `MacroEditorScreen.kt` and `Trigger.humanReadable()` in `MacroDashboardScreen.kt`. Also add to `TRIGGER_OPTIONS` list + `triggerTypeLabel()` in `MacroEditorScreen.kt`, and thread the new onXChange callback through `MacroEditorScreen` → `MacroEditorContent` (default `= {}`) → `VisualBuilderTab` (no default) → `TriggerParamFields` (default `= {}`).
 
 **Repository** (`data/MacroRepository.kt`):
 - Constructor takes `MacroDao` — get via `AppDatabase.getInstance(ctx).macroDao()`
@@ -44,7 +45,7 @@ Package root: `at.resch.routines`
 
 **Action types supported**: `log`, `wait` (durationMs: Number), `execute_shell_script`, `toggle_hotspot`, `fire_app_intent`, `show_notification` (title+message), `http_request` (url, method, body). Core team added `WaitActionExecutor` with same `durationMs` key.
 
-**Trigger param handlers in ViewModel** (Phase 4): `onBatteryLevelChange(String)`, `onBatteryModeChange(String)`, `onTimeScheduleIntervalChange(String)` — default invalid input to 20/MODE_BELOW/15 respectively. All call `regenerateJson()`.
+**Trigger param handlers in ViewModel** (`MacroEditorViewModel.kt`): `onBatteryLevelChange(String)`, `onBatteryModeChange(String)`, `onTimeScheduleIntervalChange(String)` — default invalid input to 20/MODE_BELOW/15 respectively. `onWifiSsidChange`/`onWifiModeChange`, `onBluetoothNameChange`/`onBluetoothModeChange`, `onIntervalSecondsChange`/`onIntervalRunOnStartChange` — these three pairs use `as? Trigger.X ?: return` guards (no-op if current trigger isn't that type) rather than defaulting, since they only make sense when that trigger is already selected. `onIntervalSecondsChange` defaults invalid/empty input to 60. All call `regenerateJson()`.
 
 **Action list UI pattern** (MacroEditor Visual Builder tab):
 - Accordion: `remember { mutableStateOf<String?>(null) }` tracks `expandedActionId`. Tapping summary row toggles expand; only one row open at a time.

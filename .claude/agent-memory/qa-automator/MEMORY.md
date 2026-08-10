@@ -5,3 +5,4 @@
 - [Phase 6 Wait/Reorder Tests](project_phase6_wait_reorder_tests.md) — 35 new tests (WaitActionExecutor/sequential ordering/ViewModel reorder+wait), gate closed at 216 total; currentTime-in-inner-class pitfall
 - [Phase 7 Strategy/CompatibilityContract Tests](project_phase7_strategy_tests.md) — 30 tests (StrategyActionExecutor base + ToggleHotspot strategies), gate closed at 246 total; protected-method + final-class pitfalls
 - [Phase 8 Simple Seam Tests](project_phase8_simple_seam_tests.md) — 28 tests (ToggleDnd/SetVolumeProfile/SetBrightness), gate ~274 total; simple seam pattern, NOT StrategyActionExecutor
+- [Phase 9 Interval Trigger Tests](project_phase9_interval_trigger_tests.md) — 48 tests (IntervalTriggerSource/SystemEvent/HttpRequest headers+timeout/ViewModel), gate 327 total; virtual-time vs DelayProvider-fake decision tree for concurrent tickers

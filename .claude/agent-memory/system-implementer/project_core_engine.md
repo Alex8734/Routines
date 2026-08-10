@@ -20,4 +20,6 @@ Key decisions:
 - **Central Json**: `MacroJson` in data/ — `Json { ignoreUnknownKeys = true }`, default "type" discriminator (Trigger schema relies on it). Reused by engine + repository, no ad-hoc Json instances.
 - **Foreground service**: type `specialUse` (generic automation engine fits no predefined FGS type). Permissions: FOREGROUND_SERVICE, FOREGROUND_SERVICE_SPECIAL_USE, POST_NOTIFICATIONS.
 
+- **Pro-Makro-konfigurierbare Trigger** (erstmals bei `interval`): Die TriggerSource bekommt KEINEN Context, sondern einen `Flow<Set<Trigger.X>>` aus dem Repository injiziert (gebaut in `EngineContainer.defaultTriggerSources`) und reconciled daraus intern eine Job-Map. Vorteil: reine JVM-Testbarkeit + eine Registry-Quelle für beliebig viele Konfigurationen. Der ältere `time_schedule`-Trigger bleibt bewusst simpel (eine Quelle, fixe 15 Min, ignoriert `intervalMinutes`) — nicht "reparieren", `interval` ist der Nachfolger.
+
 Seams left for Phase 3/4: implement `ActionExecutor` per new action (shell/root/hotspot/intent), register in `EngineContainer.defaultExecutors()`; implement `TriggerSource` per new trigger, add to `EngineContainer.defaultTriggerSources()`; extend `TriggerRegistry.triggerIdOf` when a new Trigger subtype is added.

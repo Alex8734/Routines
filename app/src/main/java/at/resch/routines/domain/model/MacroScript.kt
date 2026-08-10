@@ -84,6 +84,35 @@ sealed class Trigger {
     ) : Trigger()
 
     /**
+     * Periodischer Intervall-Trigger: feuert alle [intervalSeconds] Sekunden,
+     * solange die Engine läuft. Im Gegensatz zu [TimeSchedule] wird das Intervall
+     * **pro Makro** ausgewertet — die Quelle betreibt je Intervallwert einen
+     * eigenen Ticker, das Event trägt den Intervallwert und matcht nur Makros mit
+     * genau diesem Wert.
+     *
+     * - [intervalSeconds] : Abstand zwischen zwei Ausführungen in Sekunden.
+     *   Werte unterhalb von [MIN_INTERVAL_SECONDS] werden von der Quelle auf
+     *   dieses Minimum angehoben (Schutz vor Dauerfeuer, z. B. bei HTTP-Polling).
+     * - [runOnStart]      : `true` → feuert zusätzlich einmal sofort beim Start
+     *   der Quelle (praktisch für Polling, damit nicht erst ein volles Intervall
+     *   gewartet wird). Default `false`.
+     *
+     * Wie [TimeSchedule] ein reiner Coroutine-Ticker: kein AlarmManager, keine
+     * Persistenz über Prozess-Tod hinweg. Läuft im Foreground-Service-Scope.
+     */
+    @Serializable
+    @SerialName("interval")
+    data class Interval(
+        val intervalSeconds: Int,
+        val runOnStart: Boolean = false
+    ) : Trigger() {
+        companion object {
+            /** Untergrenze, auf die zu kleine/ungültige Intervalle geklemmt werden. */
+            const val MIN_INTERVAL_SECONDS = 5
+        }
+    }
+
+    /**
      * Feuert abhängig von der aktuell verbundenen WLAN-SSID.
      *
      * - [ssid] : Name (SSID) des WLANs, auf das reagiert werden soll.

@@ -84,6 +84,7 @@ private val TRIGGER_OPTIONS: List<Pair<Trigger, String>> = listOf(
     Trigger.SimCardDataConnected to "Mobile Daten verbunden",
     Trigger.BatteryLevel(level = 20) to "Akkustand",
     Trigger.TimeSchedule(intervalMinutes = 15) to "Zeitplan",
+    Trigger.Interval(intervalSeconds = 60) to "Intervall",
     Trigger.WifiSsid(ssid = "") to "WLAN-SSID",
     Trigger.BluetoothDevice(deviceName = "") to "Bluetooth-Gerät"
 )
@@ -98,6 +99,7 @@ private fun Trigger.triggerTypeLabel(): String = when (this) {
     is Trigger.SimCardDataConnected -> "Mobile Daten verbunden"
     is Trigger.BatteryLevel -> "Akkustand"
     is Trigger.TimeSchedule -> "Zeitplan"
+    is Trigger.Interval -> "Intervall"
     is Trigger.WifiSsid -> "WLAN-SSID"
     is Trigger.BluetoothDevice -> "Bluetooth-Gerät"
 }
@@ -206,6 +208,8 @@ fun MacroEditorScreen(
         onBatteryLevelChange = viewModel::onBatteryLevelChange,
         onBatteryModeChange = viewModel::onBatteryModeChange,
         onTimeScheduleIntervalChange = viewModel::onTimeScheduleIntervalChange,
+        onIntervalSecondsChange = viewModel::onIntervalSecondsChange,
+        onIntervalRunOnStartChange = viewModel::onIntervalRunOnStartChange,
         onWifiSsidChange = viewModel::onWifiSsidChange,
         onWifiModeChange = viewModel::onWifiModeChange,
         onBluetoothNameChange = viewModel::onBluetoothNameChange,
@@ -242,6 +246,8 @@ fun MacroEditorContent(
     onBatteryLevelChange: (String) -> Unit = {},
     onBatteryModeChange: (String) -> Unit = {},
     onTimeScheduleIntervalChange: (String) -> Unit = {},
+    onIntervalSecondsChange: (String) -> Unit = {},
+    onIntervalRunOnStartChange: (Boolean) -> Unit = {},
     onWifiSsidChange: (String) -> Unit = {},
     onWifiModeChange: (String) -> Unit = {},
     onBluetoothNameChange: (String) -> Unit = {},
@@ -329,6 +335,8 @@ fun MacroEditorContent(
                         onBatteryLevelChange = onBatteryLevelChange,
                         onBatteryModeChange = onBatteryModeChange,
                         onTimeScheduleIntervalChange = onTimeScheduleIntervalChange,
+                        onIntervalSecondsChange = onIntervalSecondsChange,
+                        onIntervalRunOnStartChange = onIntervalRunOnStartChange,
                         onWifiSsidChange = onWifiSsidChange,
                         onWifiModeChange = onWifiModeChange,
                         onBluetoothNameChange = onBluetoothNameChange,
@@ -370,6 +378,8 @@ private fun VisualBuilderTab(
     onBatteryLevelChange: (String) -> Unit,
     onBatteryModeChange: (String) -> Unit,
     onTimeScheduleIntervalChange: (String) -> Unit,
+    onIntervalSecondsChange: (String) -> Unit,
+    onIntervalRunOnStartChange: (Boolean) -> Unit,
     onWifiSsidChange: (String) -> Unit,
     onWifiModeChange: (String) -> Unit,
     onBluetoothNameChange: (String) -> Unit,
@@ -450,6 +460,8 @@ private fun VisualBuilderTab(
                 onBatteryLevelChange = onBatteryLevelChange,
                 onBatteryModeChange = onBatteryModeChange,
                 onTimeScheduleIntervalChange = onTimeScheduleIntervalChange,
+                onIntervalSecondsChange = onIntervalSecondsChange,
+                onIntervalRunOnStartChange = onIntervalRunOnStartChange,
                 onWifiSsidChange = onWifiSsidChange,
                 onWifiModeChange = onWifiModeChange,
                 onBluetoothNameChange = onBluetoothNameChange,
@@ -575,6 +587,8 @@ private fun TriggerParamFields(
     onBatteryLevelChange: (String) -> Unit,
     onBatteryModeChange: (String) -> Unit,
     onTimeScheduleIntervalChange: (String) -> Unit,
+    onIntervalSecondsChange: (String) -> Unit = {},
+    onIntervalRunOnStartChange: (Boolean) -> Unit = {},
     onWifiSsidChange: (String) -> Unit = {},
     onWifiModeChange: (String) -> Unit = {},
     onBluetoothNameChange: (String) -> Unit = {},
@@ -643,6 +657,37 @@ private fun TriggerParamFields(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true
             )
+        }
+        is Trigger.Interval -> {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Intervall-Eingabe in Sekunden
+                OutlinedTextField(
+                    value = trigger.intervalSeconds.toString(),
+                    onValueChange = onIntervalSecondsChange,
+                    label = { Text("Intervall (Sekunden)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    supportingText = {
+                        Text("Mindestens ${Trigger.Interval.MIN_INTERVAL_SECONDS} Sekunden — kleinere Werte werden von der Engine automatisch angehoben.")
+                    }
+                )
+                // Sofort-Start-Switch
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Sofort beim Start ausführen",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Switch(
+                        checked = trigger.runOnStart,
+                        onCheckedChange = onIntervalRunOnStartChange
+                    )
+                }
+            }
         }
         is Trigger.WifiSsid -> {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1182,6 +1227,40 @@ private fun PreviewTimeScheduleAndHttpRequest() {
                 id = "a1",
                 type = "http_request",
                 params = mapOf("url" to "https://example.com/ping", "method" to "GET")
+            )
+        ),
+        rawJson = ""
+    )
+    RoutinesTheme {
+        MacroEditorContent(
+            uiState = fakeState,
+            onNameChange = {},
+            onEnabledChange = {},
+            onTriggerChange = {},
+            onAddAction = {},
+            onRemoveAction = {},
+            onActionTypeChange = { _, _ -> },
+            onActionParamChange = { _, _, _ -> },
+            onMoveAction = { _, _ -> },
+            onRawJsonChange = {},
+            onSave = {},
+            onNavigateBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Editor – Intervall-Trigger + HTTP-Request-Aktion")
+@Composable
+private fun PreviewIntervalAndHttpRequest() {
+    val fakeState = EditorUiState(
+        name = "Polling-Routine",
+        enabled = true,
+        trigger = Trigger.Interval(intervalSeconds = 30, runOnStart = true),
+        actions = listOf(
+            ActionDraft(
+                id = "a1",
+                type = "http_request",
+                params = mapOf("url" to "https://example.com/status", "method" to "GET")
             )
         ),
         rawJson = ""

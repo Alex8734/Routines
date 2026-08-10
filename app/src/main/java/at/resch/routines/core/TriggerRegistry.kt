@@ -82,6 +82,8 @@ class TriggerRegistry(
                 at.resch.routines.core.trigger.BatteryTriggerSource.TRIGGER_ID
             is at.resch.routines.domain.model.Trigger.TimeSchedule ->
                 at.resch.routines.core.trigger.TimeScheduleTriggerSource.TRIGGER_ID
+            is at.resch.routines.domain.model.Trigger.Interval ->
+                at.resch.routines.core.trigger.IntervalTriggerSource.TRIGGER_ID
             is at.resch.routines.domain.model.Trigger.WifiSsid ->
                 at.resch.routines.core.trigger.WifiSsidTriggerSource.TRIGGER_ID
             is at.resch.routines.domain.model.Trigger.BluetoothDevice ->

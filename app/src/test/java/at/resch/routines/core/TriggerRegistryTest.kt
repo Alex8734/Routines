@@ -1,5 +1,6 @@
 package at.resch.routines.core
 
+import at.resch.routines.core.trigger.IntervalTriggerSource
 import at.resch.routines.data.MacroRepository
 import at.resch.routines.domain.model.Action
 import at.resch.routines.domain.model.MacroScript
@@ -45,6 +46,14 @@ class TriggerRegistryTest {
 
     private val disabledCellMacro = cellMacro.copy(id = "c2", enabled = false)
 
+    private val intervalMacro = MacroScript(
+        id = "i1",
+        name = "Interval macro",
+        enabled = true,
+        trigger = Trigger.Interval(intervalSeconds = 30),
+        actions = listOf(Action("http_request", mapOf("url" to "https://example.com")))
+    )
+
     /**
      * Builds a fake [TriggerSource] that records start/stop calls.
      */
@@ -85,6 +94,57 @@ class TriggerRegistryTest {
         registry.start(scope)
 
         verify(exactly = 0) { cellSource.start(any(), any()) }
+    }
+
+    // -----------------------------------------------------------------------
+    // Interval trigger — dedicated triggerId "interval"
+    // -----------------------------------------------------------------------
+
+    @Test
+    fun `source is started with triggerId interval when an active macro uses Trigger Interval`() =
+        runTest(UnconfinedTestDispatcher()) {
+            val intervalSource = fakeSource(IntervalTriggerSource.TRIGGER_ID)
+            val (registry, _, scope) = buildRegistry(listOf(intervalMacro), intervalSource)
+
+            registry.start(scope)
+
+            verify(exactly = 1) { intervalSource.start(any(), any()) }
+        }
+
+    @Test
+    fun `interval source is stopped once its macro is disabled`() = runTest(UnconfinedTestDispatcher()) {
+        val repo = mockk<MacroRepository>()
+        // First emission: enabled interval macro; second: the same macro but disabled.
+        every { repo.observeAll() } returns kotlinx.coroutines.flow.flow {
+            emit(listOf(intervalMacro))
+            emit(listOf(intervalMacro.copy(enabled = false)))
+        }
+        val intervalSource = fakeSource(IntervalTriggerSource.TRIGGER_ID)
+        val scope = TestScope(UnconfinedTestDispatcher())
+        val registry = TriggerRegistry(EventBus(), repo, listOf(intervalSource))
+
+        registry.start(scope)
+
+        verify(exactly = 1) { intervalSource.start(any(), any()) }
+        verify(exactly = 1) { intervalSource.stop() }
+    }
+
+    @Test
+    fun `interval source is stopped once its macro is removed`() = runTest(UnconfinedTestDispatcher()) {
+        val repo = mockk<MacroRepository>()
+        // First emission: interval macro present; second: no macros at all.
+        every { repo.observeAll() } returns kotlinx.coroutines.flow.flow {
+            emit(listOf(intervalMacro))
+            emit(emptyList())
+        }
+        val intervalSource = fakeSource(IntervalTriggerSource.TRIGGER_ID)
+        val scope = TestScope(UnconfinedTestDispatcher())
+        val registry = TriggerRegistry(EventBus(), repo, listOf(intervalSource))
+
+        registry.start(scope)
+
+        verify(exactly = 1) { intervalSource.start(any(), any()) }
+        verify(exactly = 1) { intervalSource.stop() }
     }
 
     // -----------------------------------------------------------------------

@@ -25,10 +25,14 @@ import at.resch.routines.core.trigger.BluetoothDeviceTriggerSource
 import at.resch.routines.core.trigger.BroadcastBatteryLevelProvider
 import at.resch.routines.core.trigger.BroadcastBluetoothConnectionProvider
 import at.resch.routines.core.trigger.BroadcastWifiSsidProvider
+import at.resch.routines.core.trigger.IntervalTriggerSource
 import at.resch.routines.core.trigger.TimeScheduleTriggerSource
 import at.resch.routines.core.trigger.WifiSsidTriggerSource
 import at.resch.routines.data.AppDatabase
 import at.resch.routines.data.MacroRepository
+import at.resch.routines.domain.model.Trigger
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 /**
  * Schlanker manueller DI-Container / Composition-Root für die Core-Engine.
@@ -96,10 +100,21 @@ object EngineContainer {
      */
     fun defaultTriggerSources(context: Context): List<TriggerSource> {
         val appContext = context.applicationContext
+        // Eigene Repository-Instanz für die Interval-Quelle: unkritisch, weil
+        // AppDatabase.getInstance ein Singleton ist und MacroRepository selbst
+        // zustandslos über dem DAO liegt (kein zweiter DB-Handle, kein Cache).
+        val intervalConfigs = repository(appContext).observeAll()
+            .map { macros ->
+                macros.filter { it.enabled }
+                    .mapNotNull { it.trigger as? Trigger.Interval }
+                    .toSet()
+            }
+            .distinctUntilChanged()
         return listOf(
             NetworkTriggerSource(NetworkStatusTracker(appContext)),
             BatteryTriggerSource(BroadcastBatteryLevelProvider(appContext)),
             TimeScheduleTriggerSource(),
+            IntervalTriggerSource(intervalConfigs),
             WifiSsidTriggerSource(BroadcastWifiSsidProvider(appContext)),
             BluetoothDeviceTriggerSource(BroadcastBluetoothConnectionProvider(appContext))
         )

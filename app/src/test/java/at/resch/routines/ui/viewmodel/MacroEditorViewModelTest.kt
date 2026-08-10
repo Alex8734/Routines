@@ -191,6 +191,87 @@ class MacroEditorViewModelTest {
         assertFalse(vm.uiState.value.isSaved)
     }
 
+    // -----------------------------------------------------------------------
+    // Trigger.Interval mutations
+    // -----------------------------------------------------------------------
+
+    @Test
+    fun `onIntervalSecondsChange sets intervalSeconds and preserves runOnStart`() = runTest(dispatcher) {
+        val vm = newVm()
+        vm.onTriggerChange(Trigger.Interval(intervalSeconds = 60, runOnStart = true))
+
+        vm.onIntervalSecondsChange("120")
+
+        val trigger = vm.uiState.value.trigger as Trigger.Interval
+        assertEquals(120, trigger.intervalSeconds)
+        assertTrue(trigger.runOnStart)
+    }
+
+    @Test
+    fun `onIntervalSecondsChange with invalid input falls back to default 60 without crashing`() =
+        runTest(dispatcher) {
+            val vm = newVm()
+            vm.onTriggerChange(Trigger.Interval(intervalSeconds = 30))
+
+            vm.onIntervalSecondsChange("not-a-number")
+
+            val trigger = vm.uiState.value.trigger as Trigger.Interval
+            assertEquals(60, trigger.intervalSeconds)
+        }
+
+    @Test
+    fun `onIntervalSecondsChange with blank input falls back to default 60`() = runTest(dispatcher) {
+        val vm = newVm()
+        vm.onTriggerChange(Trigger.Interval(intervalSeconds = 30))
+
+        vm.onIntervalSecondsChange("")
+
+        val trigger = vm.uiState.value.trigger as Trigger.Interval
+        assertEquals(60, trigger.intervalSeconds)
+    }
+
+    @Test
+    fun `onIntervalRunOnStartChange sets the flag and preserves intervalSeconds`() = runTest(dispatcher) {
+        val vm = newVm()
+        vm.onTriggerChange(Trigger.Interval(intervalSeconds = 45, runOnStart = false))
+
+        vm.onIntervalRunOnStartChange(true)
+
+        val trigger = vm.uiState.value.trigger as Trigger.Interval
+        assertEquals(45, trigger.intervalSeconds)
+        assertTrue(trigger.runOnStart)
+    }
+
+    @Test
+    fun `onIntervalSecondsChange is a no-op when current trigger is not Interval`() = runTest(dispatcher) {
+        val vm = newVm()
+        vm.onTriggerChange(Trigger.OnStartup)
+
+        vm.onIntervalSecondsChange("120")
+
+        assertEquals(Trigger.OnStartup, vm.uiState.value.trigger)
+    }
+
+    @Test
+    fun `onIntervalRunOnStartChange is a no-op when current trigger is not Interval`() = runTest(dispatcher) {
+        val vm = newVm()
+        vm.onTriggerChange(Trigger.OnStartup)
+
+        vm.onIntervalRunOnStartChange(true)
+
+        assertEquals(Trigger.OnStartup, vm.uiState.value.trigger)
+    }
+
+    @Test
+    fun `regenerated JSON contains the interval type discriminator`() = runTest(dispatcher) {
+        val vm = newVm()
+        vm.onTriggerChange(Trigger.Interval(intervalSeconds = 60, runOnStart = true))
+
+        val state = vm.uiState.value
+        assertTrue("Expected rawJson to contain the interval type, was: ${state.rawJson}",
+            state.rawJson.contains("\"type\": \"interval\""))
+    }
+
     @Test
     fun `onActionTypeChange clears that action's params`() = runTest(dispatcher) {
         val vm = newVm()

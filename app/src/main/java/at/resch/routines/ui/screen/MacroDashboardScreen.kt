@@ -235,6 +235,8 @@ private fun Trigger.humanReadable(): String = when (this) {
         "Akkustand $modusLabel $level%"
     }
     is Trigger.TimeSchedule -> "Alle $intervalMinutes Min."
+    is Trigger.Interval ->
+        "Alle $intervalSeconds Sek." + if (runOnStart) " (sofort + zyklisch)" else ""
     is Trigger.WifiSsid ->
         "WLAN ${if (mode == Trigger.WifiSsid.MODE_DISCONNECTED) "getrennt von" else "verbunden mit"} '$ssid'"
     is Trigger.BluetoothDevice ->

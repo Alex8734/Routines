@@ -149,6 +149,32 @@ class MacroEditorViewModel(
     }
 
     /**
+     * Setzt das Intervall in Sekunden für Trigger.Interval.
+     * Ungültige/leere Eingaben fallen auf den Standardwert 60 zurück.
+     * Ignoriert den Aufruf wenn der aktuelle Trigger kein Interval ist.
+     */
+    fun onIntervalSecondsChange(secondsStr: String) {
+        val current = _uiState.value.trigger as? Trigger.Interval ?: return
+        val seconds = secondsStr.toIntOrNull()?.coerceAtLeast(1) ?: 60
+        _uiState.update {
+            it.copy(trigger = Trigger.Interval(intervalSeconds = seconds, runOnStart = current.runOnStart))
+        }
+        regenerateJson()
+    }
+
+    /**
+     * Setzt das "Sofort beim Start ausführen"-Flag für Trigger.Interval.
+     * Ignoriert den Aufruf wenn der aktuelle Trigger kein Interval ist.
+     */
+    fun onIntervalRunOnStartChange(runOnStart: Boolean) {
+        val current = _uiState.value.trigger as? Trigger.Interval ?: return
+        _uiState.update {
+            it.copy(trigger = Trigger.Interval(intervalSeconds = current.intervalSeconds, runOnStart = runOnStart))
+        }
+        regenerateJson()
+    }
+
+    /**
      * Setzt die SSID für Trigger.WifiSsid.
      * Ignoriert den Aufruf wenn der aktuelle Trigger kein WifiSsid ist.
      */
