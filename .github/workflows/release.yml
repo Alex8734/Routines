@@ -102,8 +102,11 @@ jobs:
         run: |
           mkdir -p dist
           V="${{ steps.version.outputs.name }}"
-          APK=$(find app/build/outputs/apk/release -name "*.apk" | head -n1)
-          AAB=$(find app/build/outputs/bundle/release -name "*.aab" | head -n1)
+          # `|| true`: GitHub führt run-Blöcke mit `bash -e` aus. Fehlt das
+          # Ausgabeverzeichnis, bricht `find` mit Exit != 0 ab und der Step
+          # stirbt, bevor die verständliche Meldung unten greifen kann.
+          APK=$(find app/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -n1 || true)
+          AAB=$(find app/build/outputs/bundle/release -name "*.aab" 2>/dev/null | head -n1 || true)
           if [ -z "$APK" ]; then echo "Kein APK gebaut!"; exit 1; fi
           case "$APK" in
             *unsigned*) SUFFIX="-unsigned" ;;
