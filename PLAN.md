@@ -21,6 +21,7 @@ Der Marketplace `wshobson/agents` ist in dieser Umgebung **nicht installierbar**
 
 ---
 
+
 ## 1. Architektur-Zielbild (Clean Architecture)
 
 ```
