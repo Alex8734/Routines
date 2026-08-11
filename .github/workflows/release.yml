@@ -88,7 +88,11 @@ jobs:
         env:
           KEYSTORE_FILE: ${{ steps.keystore.outputs.path }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          # Kein Secret: Der Alias ist nicht vertraulich (er steht im Zertifikat
+          # jedes signierten APK). Als Secret hinterlegt würde GitHub das Wort
+          # "routines" in *allen* Logzeilen durch *** ersetzen — inklusive der
+          # Artefaktnamen.
+          KEY_ALIAS: routines
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           ./gradlew :app:assembleRelease :app:bundleRelease --no-daemon \
